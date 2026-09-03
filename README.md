@@ -1,4 +1,4 @@
-# easysheet
+# Easysheet
 A Complete Spreadsheet based on Luckysheet
 
 # Run
