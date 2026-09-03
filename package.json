@@ -1,18 +1,40 @@
 {
   "name": "easysheet-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "webpack.config.js",
+  "description": "EasySheet Desktop Application",
+  "main": "build/main.js",
   "scripts": {
-    "start": "electron electron/main.js"
-  }, 
+    "start": "electron .",
+    "build": "webpack --mode production && electron-builder"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
     "electron": "^44.1.1",
+    "electron-builder": "^26.15.3",
     "webpack": "^5.110.3",
     "webpack-cli": "^7.2.3"
+  }, 
+  "build": {
+    "appId": "com.app.easysheet",
+    "productName": "EasySheet",
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "files": [
+      "build/main.js",
+      "electron/preload.js",
+      "index.html",
+      "vendor/luckysheet/dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ]
+    }
   }
 }

@@ -9,11 +9,11 @@ pnpm-debug.log*
 lerna-debug.log*
 .git
 node_modules
-electron
 release
 dist
 dist-ssr
 release
+build
 *.local
 
 # Editor directories and files
