@@ -2,23 +2,86 @@
 <head>
     <meta charset="UTF-8">
     <title>EasySheet</title>
-    <!-- Luckysheet CSS 링크 -->
     <link rel='stylesheet' href='./vendor/luckysheet/dist/plugins/css/pluginsCss.css' />
     <link rel='stylesheet' href='./vendor/luckysheet/dist/plugins/plugins.css' />
     <link rel='stylesheet' href='./vendor/luckysheet/dist/css/luckysheet.css' />
     <link rel='stylesheet' href='./vendor/luckysheet/dist/assets/iconfont/iconfont.css' />
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        #toolbar {
+            height: 40px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            z-index: 9999;
+            position: relative;
+        }
+        #toolbar button {
+            padding: 6px 16px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        #toolbar button:hover { background: #e8e8e8; }
+        #toolbar .file-name { font-size: 13px; color: #555; margin-left: 8px; }
+        #luckysheet { top: 40px !important; height: calc(100% - 40px) !important; }
+    </style>
 </head>
 <body>
-    <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;"></div>
+    <div id="toolbar">
+        <button id="btn-open-csv">CSV 열기</button>
+        <span class="file-name" id="file-name"></span>
+    </div>
+    <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;"></div>
 
-    <!-- Luckysheet JS 스크립트 -->
     <script src="./vendor/luckysheet/dist/plugins/js/plugin.js"></script>
     <script src="./vendor/luckysheet/dist/luckysheet.umd.js"></script>
     <script>
-        $(function () {
+        function parseCsv(text) {
+            var rows = [];
+            var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i] === '') continue;
+                var row = [];
+                var fields = lines[i].split(',');
+                for (var j = 0; j < fields.length; j++) {
+                    var val = fields[j].trim();
+                    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith('\u201c') && val.endsWith('\u201d'))) {
+                        val = val.slice(1, -1);
+                    }
+                    row.push({ v: val, ct: { fa: 'General', t: 'g' } });
+                }
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        function csvToSheetData(text) {
+            return parseCsv(text);
+        }
+
+        luckysheet.create({
+            container: 'luckysheet',
+            data: [{ name: "Sheet1", color: "", status: "1", order: "0", data: [], config: {} }]
+        });
+
+        document.getElementById('btn-open-csv').addEventListener('click', async function () {
+            var result = await window.electronAPI.openCsv();
+            if (!result) return;
+
+            document.getElementById('file-name').textContent = result.fileName;
+
+            var sheetData = csvToSheetData(result.content);
+            luckysheet.destroy();
+
             luckysheet.create({
                 container: 'luckysheet',
-                data: [{ name: "Sheet1", color: "", status: "1", order: "0", data: [], config: {} }]
+                data: [{ name: result.fileName, color: "", status: "1", order: "0", data: sheetData, config: {} }]
             });
         });
     </script>
