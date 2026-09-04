@@ -1,5 +1,5 @@
 {
-  "name": "easysheet-app",
+  "name": "Easysheet",
   "version": "1.0.0",
   "description": "EasySheet Desktop Application",
   "main": "build/main.js",
@@ -28,6 +28,7 @@
       "build/main.js",
       "electron/preload.js",
       "index.html",
+      "src/io.js",
       "vendor/luckysheet/dist/**/*",
       "package.json"
     ],

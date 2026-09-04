@@ -35,12 +35,14 @@
 <body>
     <div id="toolbar">
         <button id="btn-open-csv">CSV 열기</button>
+        <button id="btn-save-csv">CSV 저장</button>
         <span class="file-name" id="file-name"></span>
     </div>
     <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;"></div>
 
     <script src="./vendor/luckysheet/dist/plugins/js/plugin.js"></script>
     <script src="./vendor/luckysheet/dist/luckysheet.umd.js"></script>
+    <script src="./src/io.js"></script>
     <script>
         function parseCsv(text) {
             var rows = [];
@@ -68,6 +70,10 @@
         luckysheet.create({
             container: 'luckysheet',
             data: [{ name: "Sheet1", color: "", status: "1", order: "0", data: [], config: {} }]
+        });
+
+        document.getElementById('btn-save-csv').addEventListener('click', function () {
+            saveSheetToCSV();
         });
 
         document.getElementById('btn-open-csv').addEventListener('click', async function () {
