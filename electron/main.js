@@ -17,6 +17,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(APP_ROOT, 'index.html'));
+  mainWindow.webContents.openDevTools();
 
   const template = [
     {

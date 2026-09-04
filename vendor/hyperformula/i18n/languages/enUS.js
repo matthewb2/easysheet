@@ -1,0 +1,7 @@
+/**
+ * @license
+ * Copyright (c) 2025 Handsoncode. All rights reserved.
+ */
+import enGB from './enGB';
+const dictionary = Object.assign(Object.assign({}, enGB), { langCode: 'enUS' });
+export default dictionary;
