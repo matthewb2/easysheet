@@ -9,6 +9,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    icon: path.join(APP_ROOT, 'assets', 'icon.ico'),
     webPreferences: {
       preload: path.join(APP_ROOT, 'electron', 'preload.js'),
       nodeIntegration: false,

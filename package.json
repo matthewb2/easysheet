@@ -30,9 +30,12 @@
       "index.html",
       "src/io.js",
       "vendor/luckysheet/dist/**/*",
+      "assets/icon.ico",
+      "assets/icon.png",
       "package.json"
     ],
     "win": {
+      "icon": "assets/icon.ico",
       "target": [
         "dir"
       ]
