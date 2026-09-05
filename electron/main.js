@@ -17,18 +17,35 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(APP_ROOT, 'index.html'));
-  mainWindow.webContents.openDevTools();
 
   const template = [
     {
-      label: '파일',
+      label: '파일(&F)',
       submenu: [
         {
-          label: '저장',
+          label: '열기(&O)',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => {
+            if (mainWindow && mainWindow.webContents) {
+              mainWindow.webContents.send('trigger-open-csv');
+            }
+          }
+        },
+        {
+          label: '저장(&S)',
           accelerator: 'CmdOrCtrl+S',
           click: () => {
             if (mainWindow && mainWindow.webContents) {
               mainWindow.webContents.send('trigger-save-csv');
+            }
+          }
+        },
+        {
+          label: '다른 이름으로 저장(&A)',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => {
+            if (mainWindow && mainWindow.webContents) {
+              mainWindow.webContents.send('trigger-save-as-csv');
             }
           }
         },
@@ -57,6 +74,7 @@ app.whenReady().then(() => {
   createWindow();
 });
 
+// ----- IPC: CSV 파일 열기 -----
 ipcMain.handle('open-csv', async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showOpenDialog(win, {
@@ -74,10 +92,10 @@ ipcMain.handle('open-csv', async (event) => {
 
   const filePath = result.filePaths[0];
   const content = fs.readFileSync(filePath, 'utf-8');
-  const fileName = path.basename(filePath);
-  return { fileName, content };
+  return { fileName: path.basename(filePath), filePath, content };
 });
 
+// ----- IPC: CSV 저장 (다른 이름으로 저장 다이얼로그) -----
 ipcMain.handle('save-csv-dialog', async (event, csvContent) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   try {
@@ -97,6 +115,17 @@ ipcMain.handle('save-csv-dialog', async (event, csvContent) => {
     return { success: false, canceled: true };
   } catch (error) {
     console.error('CSV 저장 중 오류:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// ----- IPC: CSV 저장 (열어둔 파일에 덮어쓰기) -----
+ipcMain.handle('write-csv', async (event, filePath, csvContent) => {
+  try {
+    fs.writeFileSync(filePath, csvContent, 'utf-8');
+    return { success: true, filePath };
+  } catch (error) {
+    console.error('CSV 덮어쓰기 중 오류:', error);
     return { success: false, error: error.message };
   }
 });

@@ -1,11 +1,12 @@
 // src/io.js
 // 시트의 내용을 열기/저장/다른 이름으로 저장하는 기능 (메뉴 연동)
+// 수식은 Luckysheet 기본 제공 함수 엔진을 사용합니다.
 
 // ----- 현재 파일 상태 추적 -----
 let currentFilePath = null; // 열어둔 파일의 절대 경로 (없으면 null)
 let currentFileName = 'Sheet1'; // 표시용 파일명
 
-// 열어둔 파일 정보를 갱신 (index.html의 열기 로직에서 호출)
+// 열어둔 파일 정보를 갱신
 function setCurrentFile(filePath, fileName) {
   currentFilePath = filePath || null;
   currentFileName = fileName || 'Sheet1';
@@ -136,7 +137,7 @@ function parseCsv(text) {
         val = val.slice(1, -1);
       }
       if (val.startsWith('=')) {
-        // 수식 셀: 값이 '='로 시작하면 HyperFormula/Luckysheet가 계산하도록 f로 저장
+        // 수식 셀: Luckysheet 기본 제공 함수 엔진이 처리하도록 f로 저장
         row.push({ v: null, f: val, ct: { fa: 'General', t: 'g' } });
       } else {
         row.push({ v: val, ct: { fa: 'General', t: 'g' } });
@@ -151,15 +152,6 @@ function csvToSheetData(text) {
   return parseCsv(text);
 }
 
-// create 후 HyperFormula로 계산값 동기화
-function syncAfterCreate() {
-  setTimeout(function () {
-    if (window.hyperformulaSync) {
-      try { window.hyperformulaSync.sync(); } catch (e) {}
-    }
-  }, 500);
-}
-
 // ----- 열기 (파일 다이얼로그 -> 시트 로드) -----
 async function openSheetFromCSV() {
   const result = await window.electronAPI.openCsv();
@@ -169,19 +161,18 @@ async function openSheetFromCSV() {
   const sheetData = csvToSheetData(result.content);
 
   luckysheet.destroy();
-  if (window.hyperformulaSync) window.hyperformulaSync.destroy();
 
   luckysheet.create({
     container: 'luckysheet',
+    lang: 'en',
     data: [{ name: fileName, color: "", status: "1", order: "0", data: sheetData, config: {} }]
   });
 
   // 열어둔 파일 경로/이름 추적
   currentFilePath = result.filePath || null;
   currentFileName = fileName;
-  syncAfterCreate();
 
-  // 툴바 파일명 표시 갱신 (존재할 경우)
+  // 툴바 파일명 표시 갱신
   const nameEl = document.getElementById('file-name');
   if (nameEl) nameEl.textContent = fileName;
 }
@@ -201,6 +192,5 @@ window.EasySheetIO = {
   setCurrentFile,
   getCurrentFileName,
   parseCsv,
-  csvToSheetData,
-  syncAfterCreate
+  csvToSheetData
 };
