@@ -164,7 +164,7 @@ async function openSheetFromCSV() {
 
   luckysheet.create({
     container: 'luckysheet',
-    lang: 'en',
+    lang: 'ko',
     data: [{ name: fileName, color: "", status: "1", order: "0", data: sheetData, config: {} }]
   });
 

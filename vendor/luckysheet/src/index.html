@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<head lang='zh'>
+<head lang='ko'>
 	<meta charset='utf-8'>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="renderer" content="webkit" />
@@ -58,7 +58,7 @@
 		$(function () {
 
 			// According to the browser language
-			var lang = luckysheetDemoUtil.language() === 'zh' ? 'zh' : 'en';
+			var lang = luckysheetDemoUtil.language() === 'ko' ? 'ko' : 'en';
 			var isShare = luckysheetDemoUtil.getRequest().share; // '?share=1' opens the collaborative editing mode
 			var gridKey = luckysheetDemoUtil.getRequest().gridKey; // workbook id for collaborative editing, or directly define here
 			var options = null;
@@ -70,7 +70,7 @@
 				}
 				options = {
 					container: "luckysheet",
-					lang: lang,
+					lang: "ko",
 					allowUpdate: true,
 					updateImageUrl: location.origin + "/luckysheet/api/updateImg",
 					updateUrl: "ws://" + location.host + "/luckysheet/websocket/luckysheet",
