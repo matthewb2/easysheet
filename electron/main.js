@@ -5,6 +5,28 @@ const fs = require('fs');
 const APP_ROOT = app.getAppPath();
 let mainWindow = null;
 
+const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+let settings = { lastDir: '' };
+
+function loadSettings() {
+  try {
+    if (fs.existsSync(settingsPath)) {
+      settings = Object.assign({}, settings, JSON.parse(fs.readFileSync(settingsPath, 'utf-8')));
+    }
+  } catch (error) {
+    console.error('설정 파일 읽기 오류:', error);
+  }
+}
+
+function saveSettings() {
+  try {
+    fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('설정 파일 저장 오류:', error);
+  }
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -72,6 +94,8 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  loadSettings();
+  saveSettings();
   createWindow();
 });
 
@@ -80,6 +104,7 @@ ipcMain.handle('open-csv', async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showOpenDialog(win, {
     title: 'CSV 파일 열기',
+    defaultPath: settings.lastDir || undefined,
     filters: [
       { name: 'CSV Files', extensions: ['csv'] },
       { name: 'All Files', extensions: ['*'] }
@@ -92,6 +117,8 @@ ipcMain.handle('open-csv', async (event) => {
   }
 
   const filePath = result.filePaths[0];
+  settings.lastDir = path.dirname(filePath);
+  saveSettings();
   const content = fs.readFileSync(filePath, 'utf-8');
   return { fileName: path.basename(filePath), filePath, content };
 });
@@ -110,6 +137,8 @@ ipcMain.handle('save-csv-dialog', async (event, csvContent) => {
     });
 
     if (filePath) {
+      settings.lastDir = path.dirname(filePath);
+      saveSettings();
       fs.writeFileSync(filePath, csvContent, 'utf-8');
       return { success: true, filePath };
     }
@@ -124,6 +153,8 @@ ipcMain.handle('save-csv-dialog', async (event, csvContent) => {
 ipcMain.handle('write-csv', async (event, filePath, csvContent) => {
   try {
     fs.writeFileSync(filePath, csvContent, 'utf-8');
+    settings.lastDir = path.dirname(filePath);
+    saveSettings();
     return { success: true, filePath };
   } catch (error) {
     console.error('CSV 덮어쓰기 중 오류:', error);
